@@ -1,0 +1,3 @@
+External button window for BlowTorch.
+
+Add it as an external plugin, then remove the internal plugin. For developers and the adventurous. There is currently no going back after you remove the internal button window plugin unless you like splicing xml files together.
