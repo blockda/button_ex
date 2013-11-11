@@ -1904,6 +1904,7 @@ function editorCancel.onClick(v)
 end
 editorCancel_cb = luajava.createProxy("android.view.View$OnClickListener",editorCancel)
 
+-- Individual button editor 
 editorDone = {}
 function editorDone.onClick(v)
 	--apply the settings out.
@@ -1924,6 +1925,8 @@ function editorDone.onClick(v)
 	flipcmd = flipcmdtmp:toString()
 	nametmp = buttonNameEdit:getText()
 	name = nametmp:toString()
+	targettmp = buttonTargetSetEdit:getText();
+	target = targettmp:toString();
 	
 	xcoordtmp = xcoordEdit:getText()
 	xcoord = tonumber(xcoordtmp:toString())
@@ -1963,6 +1966,9 @@ function editorDone.onClick(v)
 		tmp.data.label = label
 		tmp.data.flipLabel = fliplabel
 		tmp.data.flipCommand = flipcmd
+		
+		tmp.data.name = name
+		tmp.data.switchTo = target
 		
 		tmp:updateRect(statusoffset)
 		--Note("EDITING SINGLE BUTTON AFTER BUTTON:"..tmp.data.height)
@@ -2054,20 +2060,27 @@ labelSizeEdit = nil
 
 editorValues = {}
 
-textSize = 12
-textSizeSmall = 8
+tabMinHeight = (35 * density) -- dp value TODO
+bgGrey = Color:argb(255,0x99,0x99,0x99) -- background color
+
+textSizeBig = (18) -- sp value
+textSize = (14)  
+textSizeSmall = (10) 
+Note("Density: " .. density ..", TextSize: "..textSize .. "textSizeSmall: ".. textSizeSmall)
 screenlayout = view:getContext():getResources():getConfiguration().screenLayout
 local test = bit.band(screenlayout,Configuration.SCREENLAYOUT_SIZE_MASK)
 
 local function foo()
 	--Note(test)
 	--Note(Configuration.SCREENLAYOUT_SIZE_XLARGE)
+	Note("Entering the foo()"..test)
 	if(test == Configuration.SCREENLAYOUT_SIZE_XLARGE) then
-		textSize = 26
-		textSizeSmall = 17
+		textSize = (4 * density)
+		textSizeSmall = (2 * density)
 	end
 end
 pcall(foo)
+
 
 function getDialogDimensions()
 	local context = view:getContext()
@@ -2215,11 +2228,11 @@ function showEditorDialog()
 	--titletextParams:addRule(RelativeLayout.ALIGN_PARENT_TOP)
 	
 	titletext:setLayoutParams(titletextParams)
-	titletext:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	titletext:setTextSize(textSizeBig)
 	titletext:setText("EDIT BUTTON")
 	titletext:setGravity(GRAVITY_CENTER)
 	titletext:setTextColor(Color:argb(255,0x33,0x33,0x33))
-	titletext:setBackgroundColor(Color:argb(255,0x99,0x99,0x99))
+	titletext:setBackgroundColor(bgGrey)
 	titletext:setId(1)
 	top:addView(titletext)
 
@@ -2286,9 +2299,10 @@ function showEditorDialog()
 	label1 = luajava.new(TextView,context)
 	label1:setLayoutParams(fillparams)
 	label1:setText("Click")
-	label1:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	label1:setTextSize(textSizeBig)
 	label1:setBackgroundResource(R_drawable.tab_background)
 	label1:setGravity(GRAVITY_CENTER)
+	label1:setMinHeight(tabMinHeight)
 	
 	--first page.
 	
@@ -2309,14 +2323,14 @@ function showEditorDialog()
 	clickLabelRow:setLayoutParams(fillparams)
 	
 	clickLabel = luajava.new(TextView,context)
-	clickLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	clickLabel:setTextSize(textSize)
 	clickLabel:setText("Label:")
 	clickLabel:setGravity(Gravity.RIGHT)
 	clickLabelParams = luajava.new(LinearLayoutParams,80*density,WRAP_CONTENT)
 	clickLabel:setLayoutParams(clickLabelParams)
 	
 	clickLabelEdit = luajava.new(EditText,context)
-	clickLabelEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	clickLabelEdit:setTextSize(textSize)
 	clickLabelEditParams = luajava.new(LinearLayoutParams,FILL_PARENT,WRAP_CONTENT)
 	clickLabelEdit:setLines(1)
 	clickLabelEdit:setLayoutParams(clickLabelEditParams)
@@ -2337,14 +2351,14 @@ function showEditorDialog()
 	clickCmdRow:setLayoutParams(fillparams)
 	
 	clickCmdLabel = luajava.new(TextView,context)
-	clickCmdLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	clickCmdLabel:setTextSize(textSize)
 	clickCmdLabel:setText("CMD:")
 	clickCmdLabel:setGravity(Gravity.RIGHT)
 	clickCmdLabelParams = luajava.new(LinearLayoutParams,80*density,WRAP_CONTENT)
 	clickCmdLabel:setLayoutParams(clickLabelParams)
 	
 	clickCmdEdit = luajava.new(EditText,context)
-	clickCmdEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	clickCmdEdit:setTextSize(textSize)
 	clickCmdEditParams = luajava.new(LinearLayoutParams,WRAP_CONTENT,WRAP_CONTENT)
 	clickCmdEdit:setInputType(TYPE_TEXT_FLAG_MULTI_LINE)
 	clickCmdEdit:setHorizontallyScrolling(false)
@@ -2372,9 +2386,10 @@ function showEditorDialog()
 	label2 = luajava.new(TextView,context)
 	label2:setLayoutParams(fillparams)
 	label2:setText("Flip")
-	label2:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	label2:setTextSize(textSizeBig)
 	label2:setBackgroundResource(R_drawable.tab_background)
 	label2:setGravity(GRAVITY_CENTER)
+	label2:setMinHeight(tabMinHeight)
 	
 	--second, flip page.
 	flipPageScroller = luajava.new(ScrollView,context)
@@ -2390,14 +2405,14 @@ function showEditorDialog()
 	flipLabelRow:setLayoutParams(fillparams)
 	
 	flipLabel = luajava.new(TextView,context)
-	flipLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	flipLabel:setTextSize(textSize)
 	flipLabel:setText("Label:")
 	flipLabel:setGravity(Gravity.RIGHT)
 	flipLabelParams = luajava.new(LinearLayoutParams,80*density,WRAP_CONTENT)
 	flipLabel:setLayoutParams(flipLabelParams)
 	
 	flipLabelEdit = luajava.new(EditText,context)
-	flipLabelEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	flipLabelEdit:setTextSize(textSize)
 	flipLabelEditParams = luajava.new(LinearLayoutParams,FILL_PARENT,WRAP_CONTENT)
 	flipLabelEdit:setLines(1)
 	flipLabelEdit:setLayoutParams(clickLabelEditParams)
@@ -2417,14 +2432,14 @@ function showEditorDialog()
 	flipCmdRow:setLayoutParams(fillparams)
 	
 	flipCmdLabel = luajava.new(TextView,context)
-	flipCmdLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	flipCmdLabel:setTextSize(textSize)
 	flipCmdLabel:setText("CMD:")
 	flipCmdLabel:setGravity(Gravity.RIGHT)
 	flipCmdLabelParams = luajava.new(LinearLayoutParams,80*density,WRAP_CONTENT)
 	flipCmdLabel:setLayoutParams(clickLabelParams)
 	
 	flipCmdEdit = luajava.new(EditText,context)
-	flipCmdEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	flipCmdEdit:setTextSize(textSize)
 	flipCmdEditParams = luajava.new(LinearLayoutParams,FILL_PARENT,WRAP_CONTENT)
 	flipCmdEdit:setInputType(TYPE_TEXT_FLAG_MULTI_LINE)
 	flipCmdEdit:setHorizontallyScrolling(false)
@@ -2455,9 +2470,10 @@ function showEditorDialog()
 	label3 = luajava.new(TextView,context)
 	label3:setLayoutParams(fillparams)
 	label3:setText("Advanced")
-	label3:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+	label3:setTextSize(textSizeBig)
 	label3:setBackgroundResource(R_drawable.tab_background)
 	label3:setGravity(GRAVITY_CENTER)
+	label3:setMinHeight(tabMinHeight)
 	
 	--tmpview3 = luajava.new(TextView,context)
 	--tmpview3:setText("third page")
@@ -2620,7 +2636,7 @@ function makeAdvancedPage()
 		
 		buttonNameLabel:setLayoutParams(buttonNameLabelParams)
 		buttonNameLabel:setText("Name:")
-		buttonNameLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+		buttonNameLabel:setTextSize(textSize)
 		buttonNameLabel:setGravity(Gravity.RIGHT)
 		buttonNameRow:addView(buttonNameLabel)
 	end
@@ -2629,7 +2645,7 @@ function makeAdvancedPage()
 		
 	if(buttonNameEdit == nil) then
 		buttonNameEdit = fnew(EditText,context)	
-		buttonNameEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+		buttonNameEdit:setTextSize(textSize)
 		buttonNameEdit:setLines(1)
 		buttonNameEdit:setLayoutParams(buttonNameEditParams)
 		buttonNameRow:addView(buttonNameEdit)
@@ -2667,7 +2683,7 @@ function makeAdvancedPage()
 		
 		buttonTargetSetLabel:setLayoutParams(buttonNameLabelParams)
 		buttonTargetSetLabel:setText("Target Set:")
-		buttonTargetSetLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+		buttonTargetSetLabel:setTextSize(textSize)
 		buttonTargetSetLabel:setGravity(Gravity.RIGHT)
 		buttonTargetSetRow:addView(buttonTargetSetLabel)
 	end
@@ -2676,7 +2692,7 @@ function makeAdvancedPage()
 		
 	if(buttonTargetSetEdit == nil) then
 		buttonTargetSetEdit = fnew(EditText,context)	
-		buttonTargetSetEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
+		buttonTargetSetEdit:setTextSize(textSize)
 		buttonTargetSetEdit:setLines(1)
 		buttonTargetSetEdit:setLayoutParams(buttonTargetSetEditParams)
 		buttonTargetSetRow:addView(buttonTargetSetEdit)
@@ -2693,14 +2709,17 @@ function makeAdvancedPage()
 	end
 	
 	
-	colortopLabelParams = fnew(LinearLayoutParams,WRAP_CONTENT,WRAP_CONTENT)
+	colortopLabelParams = fnew(LinearLayoutParams,FILL_PARENT,WRAP_CONTENT)
 		
 	if(colortopLabel == nil) then
 		colortopLabel = fnew(TextView,context)
-		colortopLabelParams:setMargins(0,10,0,0)
+		colortopLabelParams:setMargins(0,10,0,10)
 		colortopLabel:setLayoutParams(colortopLabelParams)
-		colortopLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSize,DisplayMetrics))
-		colortopLabel:setText("Colors:")
+		colortopLabel:setTextSize(textSize)
+		colortopLabel:setText("COLORS")
+		colortopLabel:setGravity(GRAVITY_CENTER)
+		colortopLabel:setTextColor(Color:argb(255,0x33,0x33,0x33))
+		colortopLabel:setBackgroundColor(bgGrey)
 		advancedPage:addView(colortopLabel)
 	end
 	
@@ -2791,7 +2810,7 @@ function makeAdvancedPage()
 		normalLabel:setLayoutParams(fillparams)
 		normalLabel:setGravity(GRAVITY_CENTER)
 		normalLabel:setText("Normal")
-		normalLabel:setTextSize(15)
+		normalLabel:setTextSize(textSizeSmall)
 		labelRowOne:addView(normalLabel)
 	end
 	
@@ -2800,7 +2819,7 @@ function makeAdvancedPage()
 		pressedLabel:setLayoutParams(fillparams)
 		pressedLabel:setGravity(GRAVITY_CENTER)
 		pressedLabel:setText("Pressed")
-		pressedLabel:setTextSize(15)
+		pressedLabel:setTextSize(textSizeSmall)
 		labelRowOne:addView(pressedLabel)
 	end
 	
@@ -2809,7 +2828,7 @@ function makeAdvancedPage()
 		flippedLabel:setLayoutParams(fillparams)
 		flippedLabel:setGravity(GRAVITY_CENTER)
 		flippedLabel:setText("Flipped")
-		flippedLabel:setTextSize(15)
+		flippedLabel:setTextSize(textSizeSmall)
 		labelRowOne:addView(flippedLabel)
 	end
 	
@@ -2887,7 +2906,7 @@ function makeAdvancedPage()
 		normalLabelLabel:setLayoutParams(fillparams)
 		normalLabelLabel:setGravity(GRAVITY_CENTER)
 		normalLabelLabel:setText("Label")
-		normalLabelLabel:setTextSize(15)
+		normalLabelLabel:setTextSize(textSizeSmall)
 		labelRowTwo:addView(normalLabelLabel)
 	end
 	
@@ -2896,7 +2915,7 @@ function makeAdvancedPage()
 		flipLabelLabel:setLayoutParams(fillparams)
 		flipLabelLabel:setGravity(GRAVITY_CENTER)
 		flipLabelLabel:setText("FlipLabel")
-		flipLabelLabel:setTextSize(15)
+		flipLabelLabel:setTextSize(textSizeSmall)
 		labelRowTwo:addView(flipLabelLabel)
 	end
 	
@@ -2905,18 +2924,21 @@ function makeAdvancedPage()
 		invisLabel:setLayoutParams(fillparams)
 		invisLabel:setGravity(GRAVITY_CENTER)
 		invisLabel:setText("FlipLabel")
-		invisLabel:setTextSize(15)
+		invisLabel:setTextSize(textSizeSmall)
 		invisLabel:setVisibility(View.INVISIBLE)
 		labelRowTwo:addView(invisLabel)
 	end
 	
 	if(typeInLabel == nil) then
 		typeInLabel = fnew(TextView,context)
-		typeInLabelParams = fnew(LinearLayoutParams,WRAP_CONTENT,WRAP_CONTENT)
-		typeInLabelParams:setMargins(0,10,0,0)
+		typeInLabelParams = fnew(LinearLayoutParams,FILL_PARENT,WRAP_CONTENT)
+		typeInLabelParams:setMargins(0,10,0,10)
 		typeInLabel:setLayoutParams(typeInLabelParams)
-		typeInLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
-		typeInLabel:setText("Type-In Controls:")
+		typeInLabel:setTextSize(textSize)
+		typeInLabel:setText("TYPE-IN CONTROLS")
+		typeInLabel:setGravity(GRAVITY_CENTER)
+		typeInLabel:setTextColor(Color:argb(255,0x33,0x33,0x33))
+		typeInLabel:setBackgroundColor(bgGrey)
 		advancedPage:addView(typeInLabel)
 	end
 	
@@ -2938,7 +2960,8 @@ function makeAdvancedPage()
 		labelSizeEdit = fnew(EditText,context)
 		labelSizeEdit:setInputType(TYPE_CLASS_NUMBER)
 		labelSizeEdit:setLayoutParams(numbereditorParams)
-		labelSizeEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		labelSizeEdit:setGravity(GRAVITY_CENTER)
+		labelSizeEdit:setTextSize(textSize)
 		controlHolderA:addView(labelSizeEdit)
 	end
 	if(editorValues.labelSize == "MULTI") then
@@ -2958,7 +2981,8 @@ function makeAdvancedPage()
 		widthEdit = fnew(EditText,context)
 		widthEdit:setLayoutParams(numbereditorParams)
 		widthEdit:setInputType(TYPE_CLASS_NUMBER)
-		widthEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		widthEdit:setGravity(GRAVITY_CENTER)
+		widthEdit:setTextSize(textSize)
 		controlHolderB:addView(widthEdit)
 	end
 	if(editorValues.width == "MULTI") then
@@ -2978,7 +3002,8 @@ function makeAdvancedPage()
 		heightEdit = fnew(EditText,context)
 		heightEdit:setLayoutParams(numbereditorParams)
 		heightEdit:setInputType(TYPE_CLASS_NUMBER)
-		heightEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		heightEdit:setGravity(GRAVITY_CENTER)
+		heightEdit:setTextSize(textSize)
 		controlHolderC:addView(heightEdit)
 	end
 	if(editorValues.height == "MULTI") then
@@ -2998,7 +3023,7 @@ function makeAdvancedPage()
 		labelSizeLabel:setLayoutParams(fillparams)
 		labelSizeLabel:setGravity(GRAVITY_CENTER)
 		labelSizeLabel:setText("Label Font Size")
-		labelSizeLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		labelSizeLabel:setTextSize(textSizeSmall)
 		labelRowThree:addView(labelSizeLabel)
 	end
 	
@@ -3007,7 +3032,7 @@ function makeAdvancedPage()
 		widthLabel:setLayoutParams(fillparams)
 		widthLabel:setGravity(GRAVITY_CENTER)
 		widthLabel:setText("Width")
-		widthLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		widthLabel:setTextSize(textSizeSmall)
 		labelRowThree:addView(widthLabel)
 	end
 	
@@ -3016,7 +3041,7 @@ function makeAdvancedPage()
 		heightLabel:setLayoutParams(fillparams)
 		heightLabel:setGravity(GRAVITY_CENTER)
 		heightLabel:setText("Height")
-		heightLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		heightLabel:setTextSize(textSizeSmall)
 		labelRowThree:addView(heightLabel)
 	--invisLabel:setVisibility(View.INVISIBLE)
 	end
@@ -3039,7 +3064,8 @@ function makeAdvancedPage()
 		xcoordEdit = fnew(EditText,context)
 		xcoordEdit:setLayoutParams(numbereditorParams)
 		xcoordEdit:setInputType(TYPE_CLASS_NUMBER)
-		xcoordEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		xcoordEdit:setGravity(GRAVITY_CENTER)
+		xcoordEdit:setTextSize(textSize)
 		controlHolderD:addView(xcoordEdit)
 	end
 	if(editorValues.x == "MULTI") then
@@ -3061,7 +3087,8 @@ function makeAdvancedPage()
 		ycoordEdit = fnew(EditText,context)
 		ycoordEdit:setLayoutParams(numbereditorParams)
 		ycoordEdit:setInputType(TYPE_CLASS_NUMBER)
-		ycoordEdit:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		ycoordEdit:setGravity(GRAVITY_CENTER)
+		ycoordEdit:setTextSize(textSize)
 		controlHolderE:addView(ycoordEdit)
 	end
 	if(editorValues.y == "MULTI") then
@@ -3095,7 +3122,7 @@ function makeAdvancedPage()
 		xcoordLabel:setLayoutParams(fillparams)
 		xcoordLabel:setGravity(GRAVITY_CENTER)
 		xcoordLabel:setText("X Coord")
-		xcoordLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		xcoordLabel:setTextSize(textSizeSmall)
 		labelRowFour:addView(xcoordLabel)
 	end
 	
@@ -3104,7 +3131,7 @@ function makeAdvancedPage()
 		ycoordLabel:setLayoutParams(fillparams)
 		ycoordLabel:setGravity(GRAVITY_CENTER)
 		ycoordLabel:setText("Y Coord")
-		ycoordLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		ycoordLabel:setTextSize(textSizeSmall)
 		labelRowFour:addView(ycoordLabel)
 	end
 	
@@ -3113,7 +3140,7 @@ function makeAdvancedPage()
 		invisControlLabel:setLayoutParams(fillparams)
 		invisControlLabel:setGravity(GRAVITY_CENTER)
 		invisControlLabel:setText("FlipLabel")
-		invisControlLabel:setTextSize(TypedValue:applyDimension(TypedValue.COMPLEX_UNIT_SP,textSizeSmall,DisplayMetrics))
+		invisControlLabel:setTextSize(textSizeSmall)
 		invisControlLabel:setVisibility(View.INVISIBLE)
 		labelRowFour:addView(invisControlLabel)
 	end
@@ -3449,9 +3476,12 @@ function setSettingsButtonListener.onClick(v)
 	--titletextParams:addRule(RelativeLayout.ALIGN_PARENT_TOP)
 	
 	titletext:setLayoutParams(titletextParams)
-	titletext:setTextSize(36)
+	titletext:setTextSize(textSize * 2)
 	titletext:setText("DEFAULTS EDITOR")
 	titletext:setGravity(GRAVITY_CENTER)
+	titletext:setTextColor(Color:argb(255,0x33,0x33,0x33))
+	titletext:setBackgroundColor(bgGrey)
+	--titleText:setTextColor()
 	titletext:setId(1)
 	top:addView(titletext)
 	

@@ -18,6 +18,7 @@ BUTTONSET_DATA = {
 						label = "LABEL",
 						flipLabel = "",
 						flipCommand = "",
+						name = "",
 						switchTo = "",			
 			  		}
 function BUTTONSET_DATA:new(o)
