@@ -2066,7 +2066,7 @@ bgGrey = Color:argb(255,0x99,0x99,0x99) -- background color
 textSizeBig = (18) -- sp value
 textSize = (14)  
 textSizeSmall = (10) 
-Note("Density: " .. density ..", TextSize: "..textSize .. "textSizeSmall: ".. textSizeSmall)
+-- Note("Density: " .. density ..", TextSize: "..textSize .. "textSizeSmall: ".. textSizeSmall)
 screenlayout = view:getContext():getResources():getConfiguration().screenLayout
 local test = bit.band(screenlayout,Configuration.SCREENLAYOUT_SIZE_MASK)
 
