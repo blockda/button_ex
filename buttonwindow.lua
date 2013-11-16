@@ -794,14 +794,17 @@ end
 
 checkchange_cb = luajava.createProxy("android.widget.CompoundButton$OnCheckedChangeListener",checkchange)
 
-gridXwidth = 67 * density
-gridYwidth = 67 * density
+gridXwidth = 50 * density --67 * density
+gridYwidth = 50 * density --67 * density
 seekerX = {}
 function seekerX.onProgressChanged(v,prog,state)
 	----Note("seekbarchanged:"..prog)
 	local tmp = 32 + prog
 	gridXwidth = tmp*density
 	gridXSizeLabel:setText("Grid X Spacing: "..tmp)
+	-- set default width
+	defaults.width = tmp
+
 	--managerCanvas:clearCanvas()
 	drawManagerGrid()
 	--drawButtons()
@@ -815,6 +818,8 @@ function seekerY.onProgressChanged(v,prog,state)
 	local tmp = 32 + prog
 	gridYwidth = tmp*density
 	gridYSizeLabel:setText("Grid Y Spacing: "..tmp)
+	-- set default height
+	defaults.height = tmp
 	--managerCanvas:clearCanvas()
 	drawManagerGrid()
 	--drawButtons()
@@ -1379,6 +1384,7 @@ end
 
 buttonOptionDone = {}
 function buttonOptionDone.onClick(view)
+	saveDefaultOptions()
 	alert:dismiss()
 end
 buttonOptionDone_cb = luajava.createProxy("android.view.View$OnClickListener",buttonOptionDone)
@@ -2073,7 +2079,7 @@ local test = bit.band(screenlayout,Configuration.SCREENLAYOUT_SIZE_MASK)
 local function foo()
 	--Note(test)
 	--Note(Configuration.SCREENLAYOUT_SIZE_XLARGE)
-	Note("Entering the foo()"..test)
+	--Note("Entering the foo()"..test)
 	if(test == Configuration.SCREENLAYOUT_SIZE_XLARGE) then
 		textSize = (4 * density)
 		textSizeSmall = (2 * density)
@@ -3602,9 +3608,31 @@ function setEditorDoneListener.onClick(v)
 	defaults.height = height
 	defaults.width = width
 	defaults.labelSize = labelsize
-
+	gridYwidth = height * density
+	gridXwidth = width * density
+		
+	sbX:setProgress((gridXwidth/density)-32)
+	sbY:setProgress((gridYwidth/density)-32)
+	
 	buttSetSettingsEditor:dismiss()
 	
+	saveDefaultOptions()
+	
+	Note("gridXwidth:" .. gridXwidth)
+--	local tmp = {}
+--	for i,b in pairs(buttons) do
+--		tmp[i] = b.data
+--	end
+--		
+--	PluginXCallS("saveButtons",serialize(tmp))
+--	
+--	PluginXCallS("saveSetDefaults",serialize(defaults))
+--	
+--	drawButtons()
+end
+seteditorDone_cb = luajava.createProxy("android.view.View$OnClickListener",setEditorDoneListener)
+
+function saveDefaultOptions()
 	local tmp = {}
 	for i,b in pairs(buttons) do
 		tmp[i] = b.data
@@ -3616,7 +3644,6 @@ function setEditorDoneListener.onClick(v)
 	
 	drawButtons()
 end
-seteditorDone_cb = luajava.createProxy("android.view.View$OnClickListener",setEditorDoneListener)
 
 function loadOptions(data)
 	--Note("incoming options wad:"..data)
