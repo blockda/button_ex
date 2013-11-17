@@ -684,8 +684,8 @@ cpaint:setXfermode(xferModeClear)
 
 drawManagerLayer = true
 function enterManagerMode()
-	gridXwidth = defaults.width*density
-	gridYwidth = defaults.height*density
+	gridXwidth = defaults.gridXwidth*density
+	gridYwidth = defaults.gridYwidth*density
 	if(drawManagerLayer) then
 		managerLayer = Bitmap:createBitmap(view:getWidth(),view:getHeight(),BitmapConfig.ARGB_8888)
 		managerCanvas = luajava.newInstance("android.graphics.Canvas",managerLayer)
@@ -794,16 +794,16 @@ end
 
 checkchange_cb = luajava.createProxy("android.widget.CompoundButton$OnCheckedChangeListener",checkchange)
 
-gridXwidth = 50 * density --67 * density
-gridYwidth = 50 * density --67 * density
+gridXwidth = 40 * density --67 * density
+gridYwidth = 40 * density --67 * density
 seekerX = {}
 function seekerX.onProgressChanged(v,prog,state)
 	----Note("seekbarchanged:"..prog)
 	local tmp = 32 + prog
-	gridXwidth = tmp*density
+	gridXwidth = tmp *density
 	gridXSizeLabel:setText("Grid X Spacing: "..tmp)
 	-- set default width
-	defaults.width = tmp
+	defaults.gridXwidth = tmp
 
 	--managerCanvas:clearCanvas()
 	drawManagerGrid()
@@ -816,10 +816,10 @@ seekerY = {}
 function seekerY.onProgressChanged(v,prog,state)
 	--debugPrint("seekbarchanged:"..prog)
 	local tmp = 32 + prog
-	gridYwidth = tmp*density
+	gridYwidth = tmp *density
 	gridYSizeLabel:setText("Grid Y Spacing: "..tmp)
 	-- set default height
-	defaults.height = tmp
+	defaults.gridYwidth = tmp
 	--managerCanvas:clearCanvas()
 	drawManagerGrid()
 	--drawButtons()
@@ -3608,8 +3608,8 @@ function setEditorDoneListener.onClick(v)
 	defaults.height = height
 	defaults.width = width
 	defaults.labelSize = labelsize
-	gridYwidth = height * density
-	gridXwidth = width * density
+	--defaults.gridYwidth = height --* density
+	--defaults.gridXwidth = width --* density
 		
 	sbX:setProgress((gridXwidth/density)-32)
 	sbY:setProgress((gridYwidth/density)-32)
@@ -3618,7 +3618,7 @@ function setEditorDoneListener.onClick(v)
 	
 	saveDefaultOptions()
 	
-	Note("gridXwidth:" .. gridXwidth)
+	--Note("gridXwidth:" .. gridXwidth)
 --	local tmp = {}
 --	for i,b in pairs(buttons) do
 --		tmp[i] = b.data
