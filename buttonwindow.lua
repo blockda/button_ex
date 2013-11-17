@@ -1686,8 +1686,8 @@ function addButton(pX,pY)
 	local newb = BUTTON:new({x=pX,y=pY,label="newb"},density)
 	--newb.x = x
 	--newb.y = y
-	newb.data.width = (gridXwidth-5)/density
-	newb.data.height = (gridYwidth-5)/density
+	newb.data.width = defaults.width --(gridXwidth-5)/density
+	newb.data.height = defaults.height --(gridYwidth-5)/density
 	newb.data.label = "newb"..counter
 	counter = counter+1
 	--newb.rect = luajava.newInstance("android.graphics.RectF")
@@ -2081,8 +2081,9 @@ local function foo()
 	--Note(Configuration.SCREENLAYOUT_SIZE_XLARGE)
 	--Note("Entering the foo()"..test)
 	if(test == Configuration.SCREENLAYOUT_SIZE_XLARGE) then
-		textSize = (4 * density)
-		textSizeSmall = (2 * density)
+		textSizeBig = (22)
+		textSize = (18)
+		textSizeSmall = (14)
 	end
 end
 pcall(foo)
@@ -2096,7 +2097,6 @@ function getDialogDimensions()
 	local displayHeight = display:getHeight()
 	local use = displayWidth
 	local orientation = context:getResources():getConfiguration().orientation
-	
 	if(displayHeight < displayWidth) then
 		use = displayHeight
 	end
@@ -2119,14 +2119,14 @@ function getDialogDimensions()
 		--portrait
 				--landscape
 		if(dpi_bucket >= 600) then
-			height_param = 300*density
+			height_param = LinearLayoutParams.WRAP_CONTENT -- 300*density
+			--TODO when should this be 300*density as opposed to wrap_content?
 		end
 		
 		if(width_param > displayWidth) then
 			width_param = displayWidth-(5*density)
 		end
 	end
-	
 	return width_param,height_param
 end
 
@@ -2608,6 +2608,7 @@ function makeAdvancedPage()
 	local fnew = luajava.new
 	--local slp = nil
 	local context = view:getContext()
+	local LabelWidth = nil -- margin size for different screen layouts
 	if(advancedPageScroller == nil) then
 		advancedPageScroller = fnew(ScrollView,context)
 		--slp = advancedPageScroller
@@ -2634,9 +2635,14 @@ function makeAdvancedPage()
 	else
 		buttonNameRow:setVisibility(View.VISIBLE)
 	end
+	-- Adjust margins for larger screen sizes
+	if(test == Configuration.SCREENLAYOUT_SIZE_XLARGE) then
+		LabelWidth = 100 * density
+	else
+		LabelWidth = 80 * density
+	end
 	
-	
-	buttonNameLabelParams = fnew(LinearLayoutParams,80*density,WRAP_CONTENT)
+	buttonNameLabelParams = fnew(LinearLayoutParams,LabelWidth,WRAP_CONTENT)
 	if(buttonNameLabel == nil) then
 		buttonNameLabel = fnew(TextView,context)
 		
@@ -2683,7 +2689,7 @@ function makeAdvancedPage()
 		buttonTargetSetRow:setVisibility(View.VISIBLE)
 	end
 	
-	buttonTargetSetLabelParams = fnew(LinearLayoutParams,80*density,WRAP_CONTENT)
+	buttonTargetSetLabelParams = fnew(LinearLayoutParams,LabelWidth,WRAP_CONTENT)
 	if(buttonTargetSetLabel == nil) then
 		buttonTargetSetLabel = fnew(TextView,context)
 		
@@ -3611,8 +3617,8 @@ function setEditorDoneListener.onClick(v)
 	--defaults.gridYwidth = height --* density
 	--defaults.gridXwidth = width --* density
 		
-	sbX:setProgress((gridXwidth/density)-32)
-	sbY:setProgress((gridYwidth/density)-32)
+	--sbX:setProgress((gridXwidth/density)-32)
+	--sbY:setProgress((gridYwidth/density)-32)
 	
 	buttSetSettingsEditor:dismiss()
 	
