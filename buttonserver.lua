@@ -2,7 +2,7 @@ require("button")
 require("serialize")
 local marshal = require("marshal")
 
-local buttonWindowName = "button_window"
+local buttonWindowName = "button_window_ex"
 
 debugInfo = false
 local function debugString(string)
@@ -630,16 +630,51 @@ function setDebug(off)
 	end
 end
 
+
+function callbackImport()
+ checkImport()
+end
+
 function importButtons(data)
-	local data = loadstring(data)()
+ local data = loadstring(data)()
+end
+
+--utility functions for the external button window to harvest the internal buttons.
+function checkImport()
+ if(PluginSupports("button_window","exportButtons")) then
+   WindowXCallS(buttonWindowName,"askImport")
+ else
+   WindowXCallS(buttonWindowName,"failImport","Internal button window plugin does not support exporting buttons. Please update BlowTorch")
+ end
+end
+
+function doImport()
+ CallPlugin("button_window","exportButtons","button_window_ex")
 end
 
 function exportButtons(target)
-	local wad = {}
-	wad.selected = current_set
-	wad.sets = buttonsets
-	wad.defaults = buttonset_defaults
-	CallPlugin(target,"importButtons",serialize(wad))
+ local wad = {}
+ wad.selected = current_set
+ wad.sets = buttonsets
+ wad.defaults = buttonset_defaults
+ CallPlugin(target,"importButtons",serialize(wad))
+end
+
+function importButtons(data)
+ local wad = loadstring(data)()
+ current_set = wad.selected
+ buttonsets = wad.sets
+ buttonset_defaults = wad.defaults
+ loadButtonSet(current_set)
+ 
+ --count the buttons for the import message.
+ local count = 0
+ for i,v in pairs(buttonsets) do
+   for j,k in pairs(v) do
+     count = count + 1
+   end
+ end
+ WindowXCallS(buttonWindowName,"importSuccess",tostring(count))
 end
 
 debugString("Button Server Loaded")
