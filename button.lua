@@ -6,8 +6,8 @@ statusoffset = 0
 
 buttonRoundness = 6
 BUTTONSET_DATA = {
-						height 			= 48,
-						width 			= 48,
+						height 			= 42,
+						width 			= 42,
 						labelSize 		= 16,
 						primaryColor 	= Color:argb(0x88,0x00,0x00,0xFF),
 						labelColor		= Color:argb(0xAA,0xAA,0xAA,0xAA),
@@ -18,7 +18,10 @@ BUTTONSET_DATA = {
 						label = "LABEL",
 						flipLabel = "",
 						flipCommand = "",
-						switchTo = "",			
+						name = "",
+						switchTo = "",
+						gridXwidth = 45,
+						gridYwidth = 45			
 			  		}
 function BUTTONSET_DATA:new(o)
 	o = o or {}

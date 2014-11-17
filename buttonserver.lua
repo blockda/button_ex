@@ -1,7 +1,8 @@
-package.path = GetPluginInstallDirectory().."/?.lua"
 require("button")
 require("serialize")
 local marshal = require("marshal")
+
+local buttonWindowName = "button_window"
 
 debugInfo = false
 local function debugString(string)
@@ -30,7 +31,7 @@ function loadButtonSet(args)
 	
 	if(lob.set ~= nil) then
 		current_set = args
-		WindowXCallB("button_window_ex","loadButtons",marshal.encode(lob))
+		WindowXCallB(buttonWindowName,"loadButtons",marshal.encode(lob))
 	end
 end
 
@@ -43,7 +44,7 @@ function loadAndEditSet(data)
 	
 	if(lob.set ~= nil) then
 		current_set = data
-		WindowXCallB("button_window_ex","loadAndEditSet",marshal.encode(lob))
+		WindowXCallB(buttonWindowName,"loadAndEditSet",marshal.encode(lob))
 	end
 end
 
@@ -54,7 +55,7 @@ current_set = DEFAULT
 
 function clearButtons()
 	--all that needs to be done is call into the window to kick the process off
-	WindowXCallS("button_window_ex","clearButtons","")
+	WindowXCallS(buttonWindowName,"clearButtons","")
 end
 
 function saveButtons(arg)
@@ -71,6 +72,80 @@ function makeNewButtonSet(name)
 	buttonset_defaults[name] = {}
 	buttonsets[name] = {}
 	loadAndEditSet(name)
+end
+
+function deleteButtonSet(name)
+	local nextset = nil
+	if(name == current_set) then
+		buttonSetList = {}
+		for k in pairs(buttonSetList) do
+			buttonSetList[k] = nil
+		end
+		
+		
+		local setdata = {}
+		for i,v in pairs(buttonsets) do
+			setdata[i] = #v
+		end
+		
+		local counter = 0
+		selectedIndex = -1
+		for i,k in pairs(setdata) do
+			tmp = {}
+			tmp.name = i
+			tmp.count = k
+			table.insert(buttonSetList,tmp)
+	
+		end
+		
+		local sorter = function(a,b) if(a.name < b.name) then return true end return false end
+		table.sort(buttonSetList,sorter)
+		
+		for i,b in ipairs(buttonSetList) do
+			counter = counter + 1
+			if(b.name == name) then
+				selectedIndex = counter
+			end
+		end
+			
+		local nextindex = selectedIndex - 1
+		if(nextindex > 0) then
+			nextset = buttonSetList[nextindex].name
+		elseif (nextindex == 0 and counter > 1) then
+			nextset = buttonSetList[selectedIndex + 1].name 
+		end
+			
+	else
+	 --selected set is not the deleted set
+	 nextset = current_set
+	end
+	
+	buttonsets[name] = nil
+	buttonset_defaults[name] = nil
+	
+	local left = 0
+	for i,b in pairs(buttonsets) do
+		left = left + 1
+	end
+	
+	if(nextset ~= nil and nextset ~= current_set and left > 0) then
+		loadButtonSet(nextset)
+	end
+
+	if(left == 0) then
+		WindowXCallS(buttonWindowName,"updateButtonListDialogNoItems","now")
+	else
+  	local list = {}
+    for i,v in pairs(buttonsets) do
+      list[i] = #v
+    end
+    
+  
+    local data = {}
+    data.setname = nextset
+    data.setlist = list
+		WindowXCallS(buttonWindowName,"updateButtonListDialog",serialize(data))
+	end
 end
 
 
@@ -246,7 +321,7 @@ function getButtonSetList(s)
 		setdata[i] = #v
 	end
 	
-	WindowXCallS("button_window_ex","showButtonList",serialize(setdata))
+	WindowXCallS(buttonWindowName,"showButtonList",serialize(setdata))
 end
 
 function saveSetDefaults(data)
@@ -414,7 +489,7 @@ end
 
 --boolean windowReady
 function loadOptions()
-	WindowXCallS("button_window_ex","loadOptions",serialize(options))
+	WindowXCallS(buttonWindowName,"loadOptions",serialize(options))
 end
 
 function setAutoLaunch(value)
@@ -546,34 +621,17 @@ options.auto_create = true
 function setDebug(off)
 	if(not off) then
 		debugString("Button server entering debug mode...")
-		WindowXCallS("button_window_ex","setDebug","on")
+		WindowXCallS(buttonWindowName,"setDebug","on")
 		debugInfo = true
 	else
 		debugString("Button leaving debug mode...")
-		WindowXCallS("button_window_ex","setDebug","off")
+		WindowXCallS(buttonWindowName,"setDebug","off")
 		debugInfo = false
 	end
 end
 
-function callbackImport()
-	checkImport()
-end
-
 function importButtons(data)
 	local data = loadstring(data)()
-end
-
---utility functions for the external button window to harvest the internal buttons.
-function checkImport()
-	if(PluginSupports("button_window","exportButtons")) then
-		WindowXCallS("button_window_ex","askImport")
-	else
-		WindowXCallS("button_window_ex","failImport","Internal button window plugin does not support exporting buttons. Please update BlowTorch")
-	end
-end
-
-function doImport()
-	CallPlugin("button_window","exportButtons","button_window_ex")
 end
 
 function exportButtons(target)
@@ -582,23 +640,6 @@ function exportButtons(target)
 	wad.sets = buttonsets
 	wad.defaults = buttonset_defaults
 	CallPlugin(target,"importButtons",serialize(wad))
-end
-
-function importButtons(data)
-	local wad = loadstring(data)()
-	current_set = wad.selected
-	buttonsets = wad.sets
-	buttonset_defaults = wad.defaults
-	loadButtonSet(current_set)
-	
-	--count the buttons for the import message.
-	local count = 0
-	for i,v in pairs(buttonsets) do
-		for j,k in pairs(v) do
-			count = count + 1
-		end
-	end
-	WindowXCallS("button_window_ex","importSuccess",tostring(count))
 end
 
 debugString("Button Server Loaded")
