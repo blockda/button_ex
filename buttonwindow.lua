@@ -1855,23 +1855,28 @@ end
 
 
 function OnDestroy()
-	--Note("destroying button window")
+	Note("destroying button window")
+
 	debugString("Button Window in View.OnDestroy()")
+
 	if(managerLayer ~= nil) then
 		managerLayer:recycle()
 		managerLayer = nil
 		managerCanvas = nil
 	end
-	--Note("freeing button layer")
+	Note("freeing button layer")
 	if(buttonLayer ~= nil) then
 		--Note("recycle")
-		buttonLayer:recycle()
+		if(buttonLayer:isRecycled() == false) then
+			buttonLayer:recycle()
+		end
 		--Note("layer to nil")
+		--if(1 == 1) then return end
 		buttonLayer = nil
 		--Note("canvas to nil")
 		buttonCanvas = nil
 	end
-	--Note("finished destroying window")
+	Note("finished destroying window")
 end
 
 TabHost = luajava.bindClass("android.widget.TabHost")
