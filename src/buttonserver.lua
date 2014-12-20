@@ -27,6 +27,8 @@ function loadButtonSet(args)
 
 	lob.name = args
 	lob.set = buttonsets[args]
+	
+	debugString("Button Set "..args.." has ".. #lob.set .." buttons");
 	lob.default = buttonset_defaults[args]
 	
 	if(lob.set ~= nil) then
@@ -64,6 +66,7 @@ function saveButtons(arg)
 	local tmp = loadstring(arg)()
 	
 	buttonsets[current_set] = tmp
+	--buttonset_defaults[current_set] = tmp.defaults
 	--printTable("arg",arg)
 	SaveSettings()
 end
@@ -258,6 +261,7 @@ function button.start(a)
 	if(buttonsets[working_set] == nil) then
 		buttonsets[working_set] = {}
 	end
+	debugString("Adding button to "..working_set)
 	table.insert(buttonsets[working_set],tmp)
 	--printTable(string.format("buttonsets[%s]",working_set),buttonsets)
 	
@@ -329,6 +333,8 @@ function saveSetDefaults(data)
 	
 	buttonset_defaults[current_set] = defaults
 	--wow, that was easy.
+	
+	--don't save here, the call to saveButtons will come next
 end
 
 function OnXmlExport(out)
@@ -636,7 +642,7 @@ function callbackImport()
 end
 
 function importButtons(data)
- local data = loadstring(data)()
+	local data = loadstring(data)()
 end
 
 --utility functions for the external button window to harvest the internal buttons.
@@ -653,11 +659,11 @@ function doImport()
 end
 
 function exportButtons(target)
- local wad = {}
- wad.selected = current_set
- wad.sets = buttonsets
- wad.defaults = buttonset_defaults
- CallPlugin(target,"importButtons",serialize(wad))
+	local wad = {}
+	wad.selected = current_set
+	wad.sets = buttonsets
+	wad.defaults = buttonset_defaults
+	CallPlugin(target,"importButtons",serialize(wad))
 end
 
 function importButtons(data)

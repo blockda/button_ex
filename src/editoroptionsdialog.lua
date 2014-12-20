@@ -27,6 +27,7 @@ local tostring = _G["tostring"]
 local Note = _G["Note"]
 local string = _G["string"]
 local tonumber = _G["tonumber"]
+local serialize = _G["serialize"]
 module(...)
 
 local context
@@ -130,7 +131,7 @@ function showDialog(initialValues)
   xSeekBarLabel:setLayoutParams(wrapparams)
   xSeekBarLabel:setTextSize(textSizeSmall)
   xSeekBarLabel:setText("Grid X Spacing: "..gridX)
-  xSeekBar:setProgress((gridX/density)-32)
+  xSeekBar:setProgress((gridX)-32)
   
   local ySeekBar = luajava.newInstance("android.widget.SeekBar",context)
   ySeekBar:setOnSeekBarChangeListener(gridYSeekBarChangeListener)
@@ -139,7 +140,7 @@ function showDialog(initialValues)
   ySeekBarLabel:setLayoutParams(wrapparams)
   ySeekBarLabel:setTextSize(textSizeSmall)
   ySeekBarLabel:setText("Grid Y Spacing: "..gridY)
-  ySeekBar:setProgress((gridY/density)-32)
+  ySeekBar:setProgress((gridY)-32)
   
   local opacitySeekBar = luajava.newInstance("android.widget.SeekBar",context)
   
@@ -257,7 +258,7 @@ gridSnapCheckChangeListener = luajava.createProxy("android.widget.CompoundButton
 
 gridXSeekBarChangeListener = luajava.createProxy("android.widget.SeekBar$OnSeekBarChangeListener",{
   onProgressChanged = function(v,progress,state)
-    gridX = (progress + 32)*density
+    gridX = (progress + 32)
     xSeekBarLabel:setText("Grid X Spacing: "..gridX)
     if(setGridXSpacing ~= nil) then
       setGridXSpacing(gridX)
@@ -267,7 +268,7 @@ gridXSeekBarChangeListener = luajava.createProxy("android.widget.SeekBar$OnSeekB
 
 gridYSeekBarChangeListener = luajava.createProxy("android.widget.SeekBar$OnSeekBarChangeListener",{
   onProgressChanged = function(v,progress,state)
-    gridY = (progress + 32)*density
+    gridY = (progress + 32)
     ySeekBarLabel:setText("Grid Y Spacing: "..gridY)
     if(setGridYSpacing ~= nil) then
       setGridYSpacing(gridY)
