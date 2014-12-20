@@ -1824,7 +1824,7 @@ function PopulateMenu(menu)
 		end
 		
 	--if(topMenuItem == nil) then
-		topMenuItem = menu:add(0,401,401,"Button Sets")
+		topMenuItem = menu:add(0,401,401,"Button Sets Ex")
 		topMenuItem:setIcon(R_drawable.ic_menu_button_sets)
 		topMenuItem:setOnMenuItemClickListener(buttonsetMenuClicked_cb)
 		
