@@ -2,7 +2,9 @@ require("button")
 require("serialize")
 local marshal = require("marshal")
 
-local buttonWindowName = "button_window_ex"
+local props = require("config")
+
+local buttonWindowName = props.name
 
 debugInfo = false
 local function debugString(string)
@@ -655,7 +657,7 @@ function checkImport()
 end
 
 function doImport()
- CallPlugin("button_window","exportButtons","button_window_ex")
+ CallPlugin("button_window","exportButtons",props.name)
 end
 
 function exportButtons(target)

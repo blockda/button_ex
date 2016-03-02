@@ -1,4 +1,4 @@
-respath = package.path
+ respath = package.path
 respath = string.sub(respath,0,string.find(respath,"?")-1).."res"
 
 require("button")
@@ -6,6 +6,8 @@ require("serialize")
 require("bit")
 local marshal = require("marshal")
 defaults = nil
+
+local props = require("config")
 
 debugInfo = false
 
@@ -1824,7 +1826,8 @@ function PopulateMenu(menu)
 		end
 		
 	--if(topMenuItem == nil) then
-		topMenuItem = menu:add(0,401,401,"Button Sets Ex")
+		topMenuItem = menu:add(0,401,401,props.label)
+
 		topMenuItem:setIcon(R_drawable.ic_menu_button_sets)
 		topMenuItem:setOnMenuItemClickListener(buttonsetMenuClicked_cb)
 		
